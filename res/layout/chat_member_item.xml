@@ -23,7 +23,7 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content" 
 	        android:textColor="#000"
-	        android:textSize="18sp"/>
+	        android:textSize="18sp" />
 	    
 	    <TextView
 	        android:id="@+id/last_talk"
@@ -31,8 +31,7 @@
 	        android:layout_marginLeft="10dip"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content" 
-	        android:textSize="18sp"
-	        android:text="jjjjjjjjjjjjjjjjjjii"/>
+	        android:textSize="18sp" />
     
     </LinearLayout>
     

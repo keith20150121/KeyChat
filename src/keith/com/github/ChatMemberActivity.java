@@ -14,59 +14,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-class ChatMember
-{
-	final private int mPicId;
-	final private String mNickName;
-	final private ChatMemberAdapter mParent;
-	private String mLastTalk;
-	
-	public ChatMember(ChatMemberAdapter parent, int picId, String nickName)
-	{
-		mPicId = picId;
-		mNickName = nickName;
-		mParent = parent;
-	}
-	
-	public int getPictureId()
-	{
-		return mPicId;
-	}
-	
-	public String getNickName()
-	{
-		return mNickName;
-	}
-	
-	public void chat(String content)
-	{
-		mLastTalk = content;
-		// NETWORK
-		
-		if (mParent == null)
-			return;
-		
-		if (mParent.getItem(0) == this)
-			return;
-
-		// Move to first
-		mParent.remove(this);
-		mParent.insert(this, 0);
-	}
-	
-	public String getLastTalk()
-	{
-		return mLastTalk;
-	}
-}
-
-// struct
-final class ViewCache
-{
-	ImageView imageView;
-	TextView  textView;
-}
-
 class ChatMemberAdapter extends ArrayAdapter<ChatMember> {
 
 	private int m_resourceId;
@@ -98,7 +45,7 @@ class ChatMemberAdapter extends ArrayAdapter<ChatMember> {
 		}
 		
 		cache.imageView.setImageResource(cm.getPictureId());
-		cache.textView.setText(cm.getNickName());
+		cache.textView.setText(cm.getNickname());
 		
 		return view;
 	}
@@ -120,21 +67,21 @@ public class ChatMemberActivity extends Activity
 		mChatMemListView.setAdapter(adapter);
 		
 		//TEST
-		ChatMember cm = new ChatMember(adapter, R.drawable.ic_launcher, "Keith");
+		ChatMember cm = new ChatMember(R.drawable.ic_launcher, "1", "Keith");
 		mChatMemList.add(cm);
-		cm = new ChatMember(adapter, R.drawable.ic_launcher, "Tom");
+		cm = new ChatMember(R.drawable.ic_launcher, "2", "Tom");
 		mChatMemList.add(cm);
-		cm = new ChatMember(adapter, R.drawable.ic_launcher, "Humityan");
+		cm = new ChatMember(R.drawable.ic_launcher, "36", "Humityan");
 		mChatMemList.add(cm);
-		cm = new ChatMember(adapter, R.drawable.ic_launcher, "w2~~232");
+		cm = new ChatMember(R.drawable.ic_launcher, "45", "w2~~232");
 		mChatMemList.add(cm);
-		cm = new ChatMember(adapter, R.drawable.ic_launcher, "394-329304[[][][]");
+		cm = new ChatMember(R.drawable.ic_launcher, "44", "394-329304[[][][]");
 		mChatMemList.add(cm);
-		cm = new ChatMember(adapter, R.drawable.ic_launcher, "????????");
+		cm = new ChatMember(R.drawable.ic_launcher, "43", "????????");
 		mChatMemList.add(cm);
-		cm = new ChatMember(adapter, R.drawable.ic_launcher, "2iruewoiureow");
+		cm = new ChatMember(R.drawable.ic_launcher, "42", "2iruewoiureow");
 		mChatMemList.add(cm);
-		cm = new ChatMember(adapter, R.drawable.ic_launcher, "我我我问问我我我我");
+		cm = new ChatMember(R.drawable.ic_launcher, "41", "我我我问问我我我我");
 		mChatMemList.add(cm);
 	}
 	
