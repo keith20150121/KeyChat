@@ -1,8 +1,7 @@
 package keith.com.github;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,7 +46,7 @@ class TalkContent
 	}
 }
 
-public class ChatMember 
+public class ChatMember implements Parcelable
 {
 	final private int mPicId;
 	private String mAccountId;
@@ -64,6 +63,43 @@ public class ChatMember
 		mTalkRecords.add(tc);
 	}
 */
+	@Override
+	public int describeContents() 
+	{
+        return 0;
+    }
+
+	@Override
+    public void writeToParcel(Parcel out, int flags) 
+	{
+        out.writeInt(mPicId);
+        out.writeString(mAccountId);
+        out.writeString(mNickname);
+        out.writeString(mLastTalk);
+    }
+
+    public static final Parcelable.Creator<ChatMember> CREATOR
+            = new Parcelable.Creator<ChatMember>() {
+    	@Override
+        public ChatMember createFromParcel(Parcel in) 
+        {
+            return new ChatMember(in);
+        }
+
+    	@Override
+        public ChatMember[] newArray(int size) {
+            return new ChatMember[size];
+        }
+    };
+    
+    private ChatMember(Parcel in)
+    {
+    	mPicId = in.readInt();
+        mAccountId = in.readString();
+        mNickname = in.readString();
+        mLastTalk = in.readString();
+    }
+	
 	public ChatMember(int picId, String accountId, String nickname)
 	{
 		mPicId = picId;

@@ -6,12 +6,12 @@
     android:padding="10dp" >
     
     <LinearLayout 
-        android:name="@+id/left_layout"
+        android:id="@+id/left_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="left"
         android:orientation="horizontal"
-        android:padding="10dp" >
+        android:padding="3dp" >
         
         <ImageView 
             android:id="@+id/chat_histroy_left_pic"
@@ -20,21 +20,21 @@
         
         <TextView
 	        android:id="@+id/chat_histroy_left_content"
-	        android:gravity="center"
 	        android:layout_marginLeft="10dip"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content" 
 	        android:textColor="#000"
-	        android:textSize="18sp" />         
+	        android:textSize="20sp"
+	        android:layout_gravity="center"/>         
     </LinearLayout>
     
     <LinearLayout 
-        android:name="@+id/right_layout"
+        android:id="@+id/right_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="right"
         android:orientation="horizontal"
-        android:padding="10dp" >
+        android:padding="3dp" >
         
         <ImageView 
             android:id="@+id/chat_histroy_right_pic"
@@ -48,7 +48,7 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content" 
 	        android:textColor="#000"
-	        android:textSize="18sp"/>         
+	        android:textSize="20sp"/>         
     </LinearLayout>
 
 </LinearLayout>

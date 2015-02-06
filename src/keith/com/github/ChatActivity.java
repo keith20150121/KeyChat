@@ -1,5 +1,6 @@
 package keith.com.github;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
@@ -75,7 +76,7 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 		}
 		
 		cache.imageView.setImageResource(tc.getPictureId());
-		cache.textView.setText(tc.getNickname());
+		cache.textView.setText(tc.getText());
 		
 		return view;
 	}
@@ -84,11 +85,55 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 
 public class ChatActivity extends Activity 
 {
+	private String   mAccountId;
 	private ListView mChatHistroyListView;
+	private List<TalkContent> mChatMemList = new ArrayList<TalkContent>();
 	
 	private void prepareChatHistroy()
 	{
+		// TEST
+		mAccountId = "1";
+		
+		Intent i = getIntent();
+		ChatMember cm = (ChatMember)i.getParcelableExtra("cm");
 		mChatHistroyListView = (ListView)findViewById(R.id.msg_list_view);
+		TalkContentAdapter adapter = new TalkContentAdapter(
+				this, 
+				R.layout.chat_content_item,
+				mChatMemList,
+				mAccountId);
+		mChatHistroyListView.setAdapter(adapter);
+		
+		// TEST
+		TalkContent tc = new TalkContent(cm, "yoyoyoyoyoyo");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "yoyoyoyoyoyo");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "23");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "uuuuuuuuuuuuuuuu\r\nueirueiorueoirue\r\nerier");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "‰ä‰ä‰ä‰ä‰ä");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "2#@#@");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "nn");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "ww");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "aa");
+		mChatMemList.add(tc);
+		tc = new TalkContent(cm, "eeeeeeeeeeeeeee22222zz");
+		
+	}
+	
+	@Override
+	public void onBackPressed()
+	{
+		Intent i = new Intent();
+		i.putExtra("last_talk", "eeeeeeeeeeeeeee22222zz");
+		setResult(RESULT_OK, i);
+		super.onBackPressed();
 	}
 	
     @Override

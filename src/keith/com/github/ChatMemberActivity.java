@@ -5,10 +5,14 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -54,20 +58,40 @@ class ChatMemberAdapter extends ArrayAdapter<ChatMember> {
 
 public class ChatMemberActivity extends Activity 
 {
+	private final String TAG = "ChatMemberActivity";
+	private ChatMember mChatting;
+	private final int WAIT_CHAT_END = 27;
 	private ListView mChatMemListView;
+	private ChatMemberAdapter mAdatper;
 	private List<ChatMember> mChatMemList = new ArrayList<ChatMember>();
 	
 	private void prepareChatMember()
 	{
 		mChatMemListView = (ListView)findViewById(R.id.member_view);
-		ChatMemberAdapter adapter = new ChatMemberAdapter(
+		mAdatper = new ChatMemberAdapter(
 				this, 
 				R.layout.chat_member_item,
 				mChatMemList);
-		mChatMemListView.setAdapter(adapter);
+		mChatMemListView.setAdapter(mAdatper);
+		mChatMemListView.setOnItemClickListener(new OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(
+					AdapterView<?> parent, 
+					View view,
+					int position,
+					long id)
+			{
+				ChatMember cm = mChatMemList.get(position);
+				mChatting = cm;
+				Intent i = new Intent(ChatMemberActivity.this, ChatActivity.class);
+				i.putExtra("cm", cm);
+				startActivityForResult(i, WAIT_CHAT_END);
+			}
+		});
 		
 		//TEST
-		ChatMember cm = new ChatMember(R.drawable.ic_launcher, "1", "Keith");
+		ChatMember cm = new ChatMember(R.drawable.local, "1", "Keith");
 		mChatMemList.add(cm);
 		cm = new ChatMember(R.drawable.ic_launcher, "2", "Tom");
 		mChatMemList.add(cm);
@@ -93,5 +117,35 @@ public class ChatMemberActivity extends Activity
         prepareChatMember();
     }
     
-    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+    	switch (requestCode)
+    	{
+    	case WAIT_CHAT_END:
+    	{
+    		if (resultCode == RESULT_OK)
+    		{
+    			if (mChatting == null)
+    			{
+    				Log.e(TAG, "mChatting is null!!");
+    				return;
+    			}
+    			
+    			String content = data.getStringExtra("last_talk");
+    			if (content.length() > 0)
+    			{
+    				mChatting.chat(content);
+    				mChatMemList.remove(mChatting);
+    				mChatMemList.add(0, mChatting);
+    				mAdatper.notifyDataSetChanged();
+    			}
+    			mChatting = null;
+    		}
+    	}
+    		break;
+    	default:
+    		break;
+    	}
+    }
 }
