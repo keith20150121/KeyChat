@@ -9,32 +9,33 @@ import android.widget.TextView;
 class ViewCache
 {
 	ImageView imageView;
+	TextView  nameView;
 	TextView  textView;
 }
 
 class TalkContent
 {
-	private final ChatMember mCm;
+	private final String mAccountId;
 	private final String mText;
 	
 	public TalkContent(
-			final ChatMember cm,
-			final String text)
+			final String text,
+			final String accountId)
 	{
-		mCm = cm;
 		mText = text;
+		mAccountId = accountId;
+	}
+	
+	public String getAccountId()
+	{
+		return mAccountId;
 	}
 	
 	public String getText()
 	{
 		return mText;
 	}
-	
-	public String getAccountId()
-	{
-		return mCm.getAccountId();
-	}
-	
+	/*	
 	public String getNickname()
 	{
 		return mCm.getNickname();
@@ -44,6 +45,7 @@ class TalkContent
 	{
 		return mCm.getPictureId();
 	}
+*/
 }
 
 public class ChatMember implements Parcelable

@@ -39,7 +39,8 @@ class ChatMemberAdapter extends ArrayAdapter<ChatMember> {
 			view = LayoutInflater.from(getContext()).inflate(m_resourceId, null);
 			cache = new ViewCache();
 			cache.imageView = (ImageView)view.findViewById(R.id.pic);
-			cache.textView = (TextView)view.findViewById(R.id.nick_name);
+			cache.nameView = (TextView)view.findViewById(R.id.nick_name);
+			cache.textView = (TextView)view.findViewById(R.id.last_talk);
 			view.setTag(cache);
 		}
 		else
@@ -49,7 +50,8 @@ class ChatMemberAdapter extends ArrayAdapter<ChatMember> {
 		}
 		
 		cache.imageView.setImageResource(cm.getPictureId());
-		cache.textView.setText(cm.getNickname());
+		cache.nameView.setText(cm.getNickname());
+		cache.textView.setText(cm.getLastTalk());
 		
 		return view;
 	}

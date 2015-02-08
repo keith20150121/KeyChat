@@ -20,22 +20,26 @@ class TalkViewCache extends ViewCache
 {
 	LinearLayout leftLayout;
 	LinearLayout rightLayout;
+	int pngId;
 }
 
 class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 
 	private int m_resourceId;
-	private final String mAccountId;
+	private final ChatMember mTalker;
+	private final ChatMember mMe;
 	
 	public TalkContentAdapter(
 			Context context, 
 			int textViewResourceId, 
 			List<TalkContent> objects,
-			final String accountId)
+			final ChatMember talker,
+			final ChatMember me)
 	{
 		super(context, textViewResourceId, objects);
 		m_resourceId = textViewResourceId;
-		mAccountId = accountId;
+		mTalker = talker;
+		mMe = me;
 	}
 	
 	@Override
@@ -52,8 +56,9 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 			cache.leftLayout = (LinearLayout)view.findViewById(R.id.left_layout);
 			cache.rightLayout = (LinearLayout)view.findViewById(R.id.right_layout);
 			
-			if (tc.getAccountId() != mAccountId) 
+			if (mMe.getAccountId() != tc.getAccountId()) 
 			{
+				cache.pngId = mTalker.getPictureId();
 				cache.rightLayout.setVisibility(View.GONE);
 				cache.leftLayout.setVisibility(View.VISIBLE);
 				cache.imageView = (ImageView)view.findViewById(R.id.chat_histroy_left_pic);
@@ -61,6 +66,7 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 			}
 			else
 			{
+				cache.pngId = mMe.getPictureId();
 				cache.rightLayout.setVisibility(View.VISIBLE);
 				cache.leftLayout.setVisibility(View.GONE);
 				cache.imageView = (ImageView)view.findViewById(R.id.chat_histroy_right_pic);
@@ -75,7 +81,7 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 			cache = (TalkViewCache)view.getTag();
 		}
 		
-		cache.imageView.setImageResource(tc.getPictureId());
+		cache.imageView.setImageResource(cache.pngId);
 		cache.textView.setText(tc.getText());
 		
 		return view;
@@ -85,14 +91,13 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 
 public class ChatActivity extends Activity 
 {
-	private String   mAccountId;
 	private ListView mChatHistroyListView;
 	private List<TalkContent> mChatMemList = new ArrayList<TalkContent>();
 	
 	private void prepareChatHistroy()
 	{
 		// TEST
-		mAccountId = "1";
+		ChatMember me = new ChatMember(R.drawable.local, "1", "Keith");
 		
 		Intent i = getIntent();
 		ChatMember cm = (ChatMember)i.getParcelableExtra("cm");
@@ -101,29 +106,30 @@ public class ChatActivity extends Activity
 				this, 
 				R.layout.chat_content_item,
 				mChatMemList,
-				mAccountId);
+				cm,
+				me);
 		mChatHistroyListView.setAdapter(adapter);
 		
 		// TEST
-		TalkContent tc = new TalkContent(cm, "yoyoyoyoyoyo");
+		TalkContent tc = new TalkContent("yoyoyoyoyoyo", cm.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "yoyoyoyoyoyo");
+		tc = new TalkContent("yoyoyoyoyoyo", cm.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "23");
+		tc = new TalkContent("23", cm.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "uuuuuuuuuuuuuuuu\r\nueirueiorueoirue\r\nerier");
+		tc = new TalkContent("uuuuuuuuuuuuuuuu\r\nueirueiorueoirue\r\nerier", cm.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "‰ä‰ä‰ä‰ä‰ä");
+		tc = new TalkContent("3434343", me.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "2#@#@");
+		tc = new TalkContent("2#@#@", cm.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "nn");
+		tc = new TalkContent("nn", me.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "ww");
+		tc = new TalkContent("ww", me.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "aa");
+		tc = new TalkContent("aa", cm.getAccountId());
 		mChatMemList.add(tc);
-		tc = new TalkContent(cm, "eeeeeeeeeeeeeee22222zz");
+		tc = new TalkContent("eeeeeeeeeeeeeee22222zz", cm.getAccountId());
 		
 	}
 	
