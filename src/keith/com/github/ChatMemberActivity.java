@@ -62,6 +62,7 @@ public class ChatMemberActivity extends Activity
 {
 	private final String TAG = "ChatMemberActivity";
 	private ChatMember mChatting;
+	private ChatMember mMe;
 	private final int WAIT_CHAT_END = 27;
 	private ListView mChatMemListView;
 	private ChatMemberAdapter mAdatper;
@@ -88,11 +89,13 @@ public class ChatMemberActivity extends Activity
 				mChatting = cm;
 				Intent i = new Intent(ChatMemberActivity.this, ChatActivity.class);
 				i.putExtra("cm", cm);
+				i.putExtra("me", mMe);
 				startActivityForResult(i, WAIT_CHAT_END);
 			}
 		});
 		
 		//TEST
+		mMe = new ChatMember(R.drawable.local, "1", "Keith");
 		ChatMember cm = new ChatMember(R.drawable.local, "1", "Keith");
 		mChatMemList.add(cm);
 		cm = new ChatMember(R.drawable.ic_launcher, "2", "Tom");

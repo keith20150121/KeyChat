@@ -1,16 +1,25 @@
 package keith.com.github;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -89,55 +98,116 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 	
 }
 
-public class ChatActivity extends Activity 
+public class ChatActivity extends Activity implements OnClickListener 
 {
+	private static final String SENDER_ID = "sendId";
+	private static final String RECEIVER_ID = "sendId";
+	private static final String CONTENT = "content";
+	private static final String TIME = "time";
+	
 	private ListView mChatHistroyListView;
-	private List<TalkContent> mChatMemList = new ArrayList<TalkContent>();
+	private TalkContentAdapter mAdapter;
+	private List<TalkContent> mChatList = new ArrayList<TalkContent>();
+	private KQChatDatabase mDbHelper;
+	private EditText mInputEdit;
+	private ChatMember mMe;
+	private ChatMember mOther;
 	
 	private void prepareChatHistroy()
 	{
-		// TEST
-		ChatMember me = new ChatMember(R.drawable.local, "1", "Keith");
+		mDbHelper = new KQChatDatabase(this, "KQChatStore.db", null, 1);
 		
 		Intent i = getIntent();
-		ChatMember cm = (ChatMember)i.getParcelableExtra("cm");
+		mOther = (ChatMember)i.getParcelableExtra("cm");
+		mMe = (ChatMember)i.getParcelableExtra("me");
 		mChatHistroyListView = (ListView)findViewById(R.id.msg_list_view);
-		TalkContentAdapter adapter = new TalkContentAdapter(
+		mAdapter = new TalkContentAdapter(
 				this, 
 				R.layout.chat_content_item,
-				mChatMemList,
-				cm,
-				me);
-		mChatHistroyListView.setAdapter(adapter);
+				mChatList,
+				mOther,
+				mMe);
+		mChatHistroyListView.setAdapter(mAdapter);
 		
 		// TEST
-		TalkContent tc = new TalkContent("yoyoyoyoyoyo", cm.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("yoyoyoyoyoyo", cm.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("23", cm.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("uuuuuuuuuuuuuuuu\r\nueirueiorueoirue\r\nerier", cm.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("3434343", me.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("2#@#@", cm.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("nn", me.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("ww", me.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("aa", cm.getAccountId());
-		mChatMemList.add(tc);
-		tc = new TalkContent("eeeeeeeeeeeeeee22222zz", cm.getAccountId());
+		TalkContent tc = new TalkContent("yoyoyoyoyoyo", mOther.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("yoyoyoyoyoyo", mOther.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("23", mOther.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("uuuuuuuuuuuuuuuu\r\nueirueiorueoirue\r\nerier", mOther.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("3434343", mOther.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("2#@#@", mOther.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("nn", mMe.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("ww", mMe.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("aa", mOther.getAccountId());
+		mChatList.add(tc);
+		tc = new TalkContent("eeeeeeeeeeeeeee22222zz", mOther.getAccountId());
 		
+	}
+	
+	private void read()
+	{
+		SQLiteDatabase db = mDbHelper.getWritableDatabase();
+		Cursor cursor = db.rawQuery("select * from kqc_chat order by time", null);
+		
+		if (cursor.moveToFirst())
+		{
+			do 
+			{
+				String accountId = cursor.getString(0);
+			} while (cursor.moveToNext());
+		}
+		
+	}
+	
+	private void save(TalkContent tc)
+	{
+		if (tc == null)
+			return;
+		
+		SQLiteDatabase db = mDbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(SENDER_ID, mMe.getAccountId());
+		values.put(RECEIVER_ID, tc.getAccountId());
+		values.put(CONTENT, tc.getText());
+		values.put(TIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		db.insert("kqc_chat", null, values);
+	}
+	
+	@Override
+	public void onClick(View view)
+	{
+		switch (view.getId())
+		{
+		case R.id.send_button:
+			{
+				String text = mInputEdit.getText().toString();
+				if (text.length() == 0)
+					break;
+				
+				TalkContent tc = new TalkContent(text, mMe.getAccountId());
+				mChatList.add(tc);
+				mAdapter.notifyDataSetChanged();
+				save(tc);
+				mInputEdit.setText("");
+			}
+			break;
+		}
 	}
 	
 	@Override
 	public void onBackPressed()
 	{
 		Intent i = new Intent();
-		i.putExtra("last_talk", "eeeeeeeeeeeeeee22222zz");
+		TalkContent tc = mChatList.get(mChatList.size() - 1);
+		i.putExtra("last_talk", tc.getText());
 		setResult(RESULT_OK, i);
 		super.onBackPressed();
 	}
@@ -147,6 +217,10 @@ public class ChatActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        Button sendBtn = (Button)findViewById(R.id.send_button);
+        mInputEdit = (EditText)findViewById(R.id.input_text);
+        sendBtn.setOnClickListener(this);
         prepareChatHistroy();
     }
+
 }
