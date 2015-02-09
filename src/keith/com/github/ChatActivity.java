@@ -88,6 +88,20 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 		{
 			view = convertView;
 			cache = (TalkViewCache)view.getTag();
+		/*	
+			if (mMe.getAccountId() != tc.getAccountId()) 
+			{
+				cache.pngId = mTalker.getPictureId();
+				cache.rightLayout.setVisibility(View.GONE);
+				cache.leftLayout.setVisibility(View.VISIBLE);
+			}
+			else
+			{
+				cache.pngId = mMe.getPictureId();
+				cache.rightLayout.setVisibility(View.VISIBLE);
+				cache.leftLayout.setVisibility(View.GONE);			
+			}
+		*/
 		}
 		
 		cache.imageView.setImageResource(cache.pngId);
@@ -100,8 +114,8 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 
 public class ChatActivity extends Activity implements OnClickListener 
 {
-	private static final String SENDER_ID = "sendId";
-	private static final String RECEIVER_ID = "sendId";
+	private static final String SENDER_ID = "senderId";
+	private static final String RECEIVER_ID = "receiverId";
 	private static final String CONTENT = "content";
 	private static final String TIME = "time";
 	
@@ -128,7 +142,7 @@ public class ChatActivity extends Activity implements OnClickListener
 				mOther,
 				mMe);
 		mChatHistroyListView.setAdapter(mAdapter);
-		
+		readFromDatabase();
 		// TEST
 		TalkContent tc = new TalkContent("yoyoyoyoyoyo", mOther.getAccountId());
 		mChatList.add(tc);
@@ -152,22 +166,27 @@ public class ChatActivity extends Activity implements OnClickListener
 		
 	}
 	
-	private void read()
+	private void readFromDatabase()
 	{
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
-		Cursor cursor = db.rawQuery("select * from kqc_chat order by time", null);
+		Cursor cursor = db.rawQuery("select * from kqc_chat "
+				+ "where (senderId = ? and receiverId = ?) or (senderId = ? and receiverId = ?)",
+				new String[]{mMe.getAccountId(), mOther.getAccountId(), mOther.getAccountId(), mMe.getAccountId()});
 		
 		if (cursor.moveToFirst())
 		{
 			do 
 			{
 				String accountId = cursor.getString(0);
+				String content = cursor.getString(2);
+				TalkContent tc = new TalkContent(content, accountId);
+				mChatList.add(tc);
 			} while (cursor.moveToNext());
 		}
 		
 	}
 	
-	private void save(TalkContent tc)
+	private void saveToDatabase(TalkContent tc)
 	{
 		if (tc == null)
 			return;
@@ -195,7 +214,7 @@ public class ChatActivity extends Activity implements OnClickListener
 				TalkContent tc = new TalkContent(text, mMe.getAccountId());
 				mChatList.add(tc);
 				mAdapter.notifyDataSetChanged();
-				save(tc);
+				saveToDatabase(tc);
 				mInputEdit.setText("");
 			}
 			break;

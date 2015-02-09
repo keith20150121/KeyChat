@@ -15,7 +15,7 @@ class ViewCache
 
 class TalkContent
 {
-	private final String mAccountId;
+	private final String mAccountId;  // sender
 	private final String mText;
 	
 	public TalkContent(

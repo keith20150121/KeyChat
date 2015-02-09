@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class KQChatDatabase extends SQLiteOpenHelper 
 {
 	private static final String CREATE_BOOK = "create table kqc_chat ("
-			+ "senderId text" // no primary key
-			+ "receiverId text"
-			+ "content text"
+			+ "senderId text," // no primary key
+			+ "receiverId text,"
+			+ "content text,"
 			+ "time time)";
 
 	public KQChatDatabase(Context context, String name, CursorFactory factory, int version)
