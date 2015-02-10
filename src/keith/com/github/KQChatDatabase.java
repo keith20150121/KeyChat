@@ -7,6 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class KQChatDatabase extends SQLiteOpenHelper 
 {
+	public static final String SENDER_ID = "senderId";
+	public static final String RECEIVER_ID = "receiverId";
+	public static final String CONTENT = "content";
+	public static final String TIME = "time";
+	
 	private static final String CREATE_BOOK = "create table kqc_chat ("
 			+ "senderId text," // no primary key
 			+ "receiverId text,"

@@ -57,6 +57,7 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 		TalkContent tc = getItem(position);
 		View view;
 		TalkViewCache cache;
+		
 		if (convertView == null)
 		{
 			view = LayoutInflater.from(getContext()).inflate(m_resourceId, null);
@@ -65,21 +66,22 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 			cache.leftLayout = (LinearLayout)view.findViewById(R.id.left_layout);
 			cache.rightLayout = (LinearLayout)view.findViewById(R.id.right_layout);
 			
-			if (mMe.getAccountId() != tc.getAccountId()) 
-			{
-				cache.pngId = mTalker.getPictureId();
-				cache.rightLayout.setVisibility(View.GONE);
-				cache.leftLayout.setVisibility(View.VISIBLE);
-				cache.imageView = (ImageView)view.findViewById(R.id.chat_histroy_left_pic);
-				cache.textView = (TextView)view.findViewById(R.id.chat_histroy_left_content);
-			}
-			else
+			if (mMe.getAccountId().equalsIgnoreCase(tc.getSenderId())) 
 			{
 				cache.pngId = mMe.getPictureId();
 				cache.rightLayout.setVisibility(View.VISIBLE);
 				cache.leftLayout.setVisibility(View.GONE);
 				cache.imageView = (ImageView)view.findViewById(R.id.chat_histroy_right_pic);
-				cache.textView = (TextView)view.findViewById(R.id.chat_histroy_right_content);				
+				cache.textView = (TextView)view.findViewById(R.id.chat_histroy_right_content);	
+
+			}
+			else
+			{
+				cache.pngId = mTalker.getPictureId();
+				cache.rightLayout.setVisibility(View.GONE);
+				cache.leftLayout.setVisibility(View.VISIBLE);
+				cache.imageView = (ImageView)view.findViewById(R.id.chat_histroy_left_pic);
+				cache.textView = (TextView)view.findViewById(R.id.chat_histroy_left_content);			
 			}
 			
 			view.setTag(cache);
@@ -88,20 +90,6 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 		{
 			view = convertView;
 			cache = (TalkViewCache)view.getTag();
-		/*	
-			if (mMe.getAccountId() != tc.getAccountId()) 
-			{
-				cache.pngId = mTalker.getPictureId();
-				cache.rightLayout.setVisibility(View.GONE);
-				cache.leftLayout.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				cache.pngId = mMe.getPictureId();
-				cache.rightLayout.setVisibility(View.VISIBLE);
-				cache.leftLayout.setVisibility(View.GONE);			
-			}
-		*/
 		}
 		
 		cache.imageView.setImageResource(cache.pngId);
@@ -113,12 +101,7 @@ class TalkContentAdapter extends ArrayAdapter<TalkContent> {
 }
 
 public class ChatActivity extends Activity implements OnClickListener 
-{
-	private static final String SENDER_ID = "senderId";
-	private static final String RECEIVER_ID = "receiverId";
-	private static final String CONTENT = "content";
-	private static final String TIME = "time";
-	
+{	
 	private ListView mChatHistroyListView;
 	private TalkContentAdapter mAdapter;
 	private List<TalkContent> mChatList = new ArrayList<TalkContent>();
@@ -144,9 +127,9 @@ public class ChatActivity extends Activity implements OnClickListener
 		mChatHistroyListView.setAdapter(mAdapter);
 		readFromDatabase();
 		// TEST
-		TalkContent tc = new TalkContent("yoyoyoyoyoyo", mOther.getAccountId());
+		TalkContent tc = new TalkContent("yoyoyoyoyoyo", mOther.getAccountId(), mMe.getAccountId());
 		mChatList.add(tc);
-		tc = new TalkContent("yoyoyoyoyoyo", mOther.getAccountId());
+		/*	tc = new TalkContent("yoyoyoyoyoyo", mOther.getAccountId());
 		mChatList.add(tc);
 		tc = new TalkContent("23", mOther.getAccountId());
 		mChatList.add(tc);
@@ -162,7 +145,7 @@ public class ChatActivity extends Activity implements OnClickListener
 		mChatList.add(tc);
 		tc = new TalkContent("aa", mOther.getAccountId());
 		mChatList.add(tc);
-		tc = new TalkContent("eeeeeeeeeeeeeee22222zz", mOther.getAccountId());
+		*/
 		
 	}
 	
@@ -170,16 +153,18 @@ public class ChatActivity extends Activity implements OnClickListener
 	{
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		Cursor cursor = db.rawQuery("select * from kqc_chat "
-				+ "where (senderId = ? and receiverId = ?) or (senderId = ? and receiverId = ?)",
+				+ "where (senderId = ? and receiverId = ?) or (senderId = ? and receiverId = ?) "
+				+ "order by time",
 				new String[]{mMe.getAccountId(), mOther.getAccountId(), mOther.getAccountId(), mMe.getAccountId()});
 		
 		if (cursor.moveToFirst())
 		{
 			do 
 			{
-				String accountId = cursor.getString(0);
+				String senderId = cursor.getString(0);
+				String receiverId = cursor.getString(1);
 				String content = cursor.getString(2);
-				TalkContent tc = new TalkContent(content, accountId);
+				TalkContent tc = new TalkContent(content, senderId, receiverId);
 				mChatList.add(tc);
 			} while (cursor.moveToNext());
 		}
@@ -193,10 +178,10 @@ public class ChatActivity extends Activity implements OnClickListener
 		
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put(SENDER_ID, mMe.getAccountId());
-		values.put(RECEIVER_ID, tc.getAccountId());
-		values.put(CONTENT, tc.getText());
-		values.put(TIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		values.put(KQChatDatabase.SENDER_ID, tc.getSenderId());
+		values.put(KQChatDatabase.RECEIVER_ID, tc.getReceiverId());
+		values.put(KQChatDatabase.CONTENT, tc.getText());
+		values.put(KQChatDatabase.TIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 		db.insert("kqc_chat", null, values);
 	}
 	
@@ -211,7 +196,7 @@ public class ChatActivity extends Activity implements OnClickListener
 				if (text.length() == 0)
 					break;
 				
-				TalkContent tc = new TalkContent(text, mMe.getAccountId());
+				TalkContent tc = new TalkContent(text, mMe.getAccountId(), mOther.getAccountId());
 				mChatList.add(tc);
 				mAdapter.notifyDataSetChanged();
 				saveToDatabase(tc);

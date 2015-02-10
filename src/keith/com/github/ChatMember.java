@@ -15,37 +15,34 @@ class ViewCache
 
 class TalkContent
 {
-	private final String mAccountId;  // sender
+	private final String mSenderId; 
+	private final String mReceiverId;
 	private final String mText;
 	
 	public TalkContent(
 			final String text,
-			final String accountId)
+			final String senderId,
+			final String receiverId)
 	{
 		mText = text;
-		mAccountId = accountId;
+		mSenderId = senderId;
+		mReceiverId = receiverId;
 	}
 	
-	public String getAccountId()
+	public String getSenderId()
 	{
-		return mAccountId;
+		return mSenderId;
+	}
+	
+	public String getReceiverId()
+	{
+		return mReceiverId;
 	}
 	
 	public String getText()
 	{
 		return mText;
 	}
-	/*	
-	public String getNickname()
-	{
-		return mCm.getNickname();
-	}
-	
-	public int getPictureId()
-	{
-		return mCm.getPictureId();
-	}
-*/
 }
 
 public class ChatMember implements Parcelable
